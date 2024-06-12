@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Web Application</title>
+</head>
+<body>
+    <h1>Data from Go Endpoint</h1>
+    <div id="data"></div>
+    <script>
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('data').innerText = JSON.stringify(data.message);
+            });
+    </script>
+</body>
+</html>
