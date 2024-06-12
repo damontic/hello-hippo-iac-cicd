@@ -63,4 +63,79 @@ I stopped using Terraform some months ago and moved to [Opentofu](https://github
 - [IBM and Hashicorp acquisition processes](https://www.hashicorp.com/blog/hashicorp-joins-ibm)
 Given that I have not Terraform installed anymore I will be using OpenTofu v1.7.2. There should not be important differences given that I will be using the same providers, in this case Hashicorp's AWS provider.
 
+### About Hashicorp's AWS Provider version
+This [bug](https://github.com/hashicorp/terraform-provider-aws/issues/37138) made me work with version 5.45.0 of the AWS provider.
+
+### About Terraform lock using Dynamodb
+I used this [script](util-scripts/create-dynamodb-terraform-lock.sh) and got:
+```bash
+make_bucket: hellohippo-golang-app-terraform-backend
+```
+And:
+```json
+{
+    "TableDescription": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "LockID",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "terraform-lock",
+        "KeySchema": [
+            {
+                "AttributeName": "LockID",
+                "KeyType": "HASH"
+            }
+        ],
+        "TableStatus": "CREATING",
+        "CreationDateTime": 1718223828.441,
+        "ProvisionedThroughput": {
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        },
+        "TableSizeBytes": 0,
+        "ItemCount": 0,
+        "TableArn": "arn:aws:dynamodb:us-east-1:471112922998:table/terraform-lock",
+        "TableId": "bf357113-9b06-4e44-a8f9-3470d22eea23",
+        "DeletionProtectionEnabled": false
+    }
+}
+```
+Then I configured Terraform to use that information [here](iac/main.tf).
 ### About multiple accounts
+I first listed the organizations I had access to.
+```bash
+$ aws organizations describe-organization
+{
+    "Organization": {
+        "Id": "o-st6dyf2srb",
+        "Arn": "arn:aws:organizations::471112825629:organization/o-st6dyf2srb",
+        "FeatureSet": "ALL",
+        "MasterAccountArn": "arn:aws:organizations::471112825629:account/o-st6dyf2srb/471112825629",
+        "MasterAccountId": "471112825629",
+        "MasterAccountEmail": "aws.development+test_org_2@fivexl.io",
+        "AvailablePolicyTypes": [
+            {
+                "Type": "SERVICE_CONTROL_POLICY",
+                "Status": "ENABLED"
+            }
+        ]
+    }
+}
+```
+This is the information for the management account.
+I will use this account to create IAM users, groups and roles to give access to member accounts.
+
+I wanted to describe the management account but failed:
+```bash
+$ aws --profile hellohippo organizations describe-account --account-id 471112825629
+
+An error occurred (AccessDeniedException) when calling the DescribeAccount operation: You don't have permissions to access this resource.
+```
+
+So I wonder if I can create member accounts. I gave it a try:
+```bash
+
+```

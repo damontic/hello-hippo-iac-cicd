@@ -1,1 +1,9 @@
+# Go binary
 golang-app
+
+# Terraform plan files
+plan
+
+# Terraform specific files
+.terraform
+.terraform.lock.hcl

@@ -1,17 +1,28 @@
+# Build stage
+FROM golang:1.22.4-alpine3.20 as builder
+
+# Define build arguments with default values
 ARG VERSION=dev
 ARG COMMIT=none
 ARG DATE=unknown
 
-FROM golang:1.22.4-alpine3.20
+# Set the working directory inside the builder container
+WORKDIR /app
 
-COPY golang-app /golang-app
+# Copy the Go application source code into the container
+COPY . .
 
-WORKDIR /golang-app
+# Build the Go application with the build arguments
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Date=${DATE}" -o myapp
 
-RUN go build -ldflags \
-    "-X main.Version=1.0.0 \
-    -X main.Commit=$(git rev-parse HEAD) \
-    -X main.Date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    -o golang-app
+# Final stage
+FROM alpine:3.20
 
-CMD ./golang-app
+# Set the working directory inside the final container
+WORKDIR /root/
+
+# Copy the compiled Go binary from the builder stage
+COPY --from=builder /app/myapp .
+
+# Command to run the binary
+CMD ["./myapp"]
