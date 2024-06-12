@@ -2,8 +2,6 @@
 
 ## Assignement
 Pick and research two ways to serve websites on AWS
-- provision all necessary infra using Terraform.
-- pick any supported backend for Terraform state.
 - DNS name or IP address should stay the same after redeployment
 - deploy the same code into two different AWS accounts (think dev and prod). You should also be able to specify different parameters between accounts, such as the domain name or amount of compute needed.
 
@@ -135,7 +133,27 @@ $ aws --profile hellohippo organizations describe-account --account-id 471112825
 An error occurred (AccessDeniedException) when calling the DescribeAccount operation: You don't have permissions to access this resource.
 ```
 
-So I wonder if I can create member accounts. I gave it a try:
+So I wondered if I was able to create member accounts. I gave it a try using Terraform:
 ```bash
+$ tofu apply plan
+aws_organizations_account.dev_account: Creating...
+╷
+│ Error: creating AWS Organizations Account (dev_account): AccessDeniedException: You don't have permissions to access this resource.
+│ 
+│   with aws_organizations_account.dev_account,
+│   on organizations.tf line 1, in resource "aws_organizations_account" "dev_account":
+│    1: resource "aws_organizations_account" "dev_account" {
+│ 
+╵
 
 ```
+This means I am limited in the number of accounts I can create, and I won't be able to fulfill the following requirements:
+```text
+- deploy the same code into two different AWS accounts (think dev and prod). You should also be able to specify different parameters between accounts, such as the domain name or amount of compute needed.
+```
+
+### Creating the ECR repository and publishing the Docker image
+
+### Deploying using Elastic Beanstalk
+
+### Deploying using ECS

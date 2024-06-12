@@ -14,7 +14,3 @@ terraform {
     encrypt        = true  # Ensures the state is encrypted at rest in S3.
   }
 }
-
-#provider "aws" {
-#  profile                  = "hellohippo"
-#}
