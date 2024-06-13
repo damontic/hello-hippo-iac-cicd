@@ -9,7 +9,7 @@ DESCRIPTION:
     This script builds the hellohippo app docker image and publishes it to AWS ECR.
 
 USAGE:
-    $0 AWS_PROFILE VERSION REPOSITORY_NAME COMMIT
+    $0 AWS_PROFILE VERSION REPOSITORY_NAME COMMIT AWS_USER
 
 PARAMETERS:
     AWS_PROFILE: Refers to an existing AWS PROFILE tied to a specific account.
@@ -83,6 +83,6 @@ docker buildx build \
     /tmp/hellohippo/golang-app/golang-app/docker
 
 aws --profile "$AWS_PROFILE" ecr get-login-password | \
-    docker login -u AWS --password-stdin
+    docker login -u AWS --password-stdin "${REPOSITORY_URI}"
 
 docker push "${IMAGE}"
