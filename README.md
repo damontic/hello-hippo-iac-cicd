@@ -40,20 +40,26 @@ Other alternatives I found after some investigation were:
 - SAM
 
 All of these ways to deploy applications are fascinating. To select two of them, I focused on their needs. We want: `changes to HTML should cause redeployment`. I decided to create a simple application in Golang that contains both a front end and a back end. I want to reuse the same application in both selected solutions, and this meant that the best choices are:
-- Elastic beanstalk
 - ECS
+- Lambda Function
+- App runner
+- Lightsail
 
-I chose these two mainly because I want to use Docker and provide a simple service that serves static content and an API.
-Implementing Elastic Beanstalk is expected to be a smooth process, offering a standardized approach to deployments and rollbacks. While I haven't deployed this using Terraform before, I'm confident it won't pose significant challenges.
+I chose these four mainly because I want to use Docker and provide a simple service that serves static content and an API. Although I have never user App runner or Lightsail, I will try to setup one of those.
+
 ECS is a service I have used before using Terraform, and given that I have administrator access, I should not have any problems. I know Hello Hippo uses Fargate, but I will create my own EC2 machines for this exercise.
 
-In both services, any update to the application code will generate a new version of the Docker image. This way, we will cover the requirement: `changes to HTML should cause redeployment.`.
+Lambda functions support running a Docker container on every request so this is another alternative.
+
+In any of these services, any update to the application code will generate a new version of the Docker image. This way, we will cover the requirement: `changes to HTML should cause redeployment.`.
 
 I decided not to use EKS because Kubernetes is a black box. I know and have managed it, but it may be too much for this simple scenario.
 
 I decided not to use S3 or Lambda Functions, given that I want to work around a simple Golang server application that can be containerized, and none of those two services are compatible with Docker.
 
-I decided not to use App Runner, Lightsail, Amplify, or SAM because I have not used those. I have experience with around 50% of AWS services, but these are simply some I have not used yet. I know I could learn about them quickly, but I want to speed up the process, and the scope I already chose is OK.
+I decided not to use Amplify, or SAM because I have not used those. I have experience with around 50% of AWS services, but these are simply some I have not used yet. I know I could learn about them quickly, but I want to speed up the process, and the scope I already chose is OK.
+
+I thought implementing Elastic Beanstalk using Terraform to be a smooth process, but it wasn't. Documentation about how to use Elastic Beanstalk using Containers and Terraform had many complexities. Most resources recommended using the Elastic Beanstalk specific CLI tool `eb`.
 
 ### About Terraform
 I stopped using Terraform some months ago and moved to [Opentofu](https://github.com/opentofu/opentofu) given:
@@ -159,6 +165,7 @@ $ export AWS_ACCESS_KEY_ID=**************
 $ export AWS_SECRET_ACCESS_KEY=**************
 $ export AWS_REGION=us-east-1
 ```
+This is needed given that the provider's `profile` attribute is not working for now. See [ticket](https://github.com/hashicorp/terraform-provider-aws/issues/35693).
 1. Initialize Terraform (or Tofu):
 ```bash
 $ tofu init
@@ -175,6 +182,11 @@ $ tofu apply plan
 ### Creating the ECR repository and publishing the Docker image
 1. After generating all the infrastructure, we will have access to an ECR repository called: `golang`.
 2. Run the [build-image.sh](util_scripts/build-image.sh). This will use a locally installed Docker and configured AWS credentials to build and publish the Docker image we will work with.
+```bash
+$ ./build-image.sh hellohippo 0.0.1 golang `git rev-parse HEAD`
+```
+
+You will see that the ECR repository was marked as immutable given that once a docker image is pushed and tagged we should not be able to update it.
 
 ### Deploying using Elastic Beanstalk
 
