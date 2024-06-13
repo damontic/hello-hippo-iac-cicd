@@ -50,6 +50,7 @@ func main() {
 
 	http.HandleFunc("/", serveTemplate)
 	http.HandleFunc("/data", serveData)
+	http.HandleFunc("/version", showVersion)
 
 	log.Printf("Starting server on: %s\n", port)
 	err = http.ListenAndServe(":"+port, nil)
@@ -69,6 +70,17 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 func serveData(w http.ResponseWriter, r *http.Request) {
 	data := Data{
 		Message: "Hello from the Go endpoint!",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func showVersion(w http.ResponseWriter, r *http.Request) {
+	data := Data{
+		Message: Version,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(data)

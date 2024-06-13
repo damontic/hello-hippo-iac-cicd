@@ -25,7 +25,7 @@ Using the [check_permissions.sh](./util_scripts/check_permissions.sh) I got:
 ```
 
 ### Picking ways to serve websites in AWS
-The following are the ways that came up to my mind:
+The following are the ways that came to my mind:
 - ECS
 - EC2 with Docker installed containing some simple scripts for managing the applications
 - EKS (but given our meeting, I decided not to follow this path)
@@ -41,25 +41,24 @@ Other alternatives I found after some investigation were:
 
 All of these ways to deploy applications are fascinating. To select two of them, I focused on their needs. We want: `changes to HTML should cause redeployment`. I decided to create a simple application in Golang that contains both a front end and a back end. I want to reuse the same application in both selected solutions, and this meant that the best choices are:
 - ECS
-- Lambda Function
 - App runner
 - Lightsail
 
-I chose these four mainly because I want to use Docker and provide a simple service that serves static content and an API. Although I have never user App runner or Lightsail, I will try to setup one of those.
+I chose these three mainly because I want to use Docker and provide a simple service that serves static content and an API. Although I have never used App Runner or Lightsail, I will try to set up one.
 
-ECS is a service I have used before using Terraform, and given that I have administrator access, I should not have any problems. I know Hello Hippo uses Fargate, but I will create my own EC2 machines for this exercise.
-
-Lambda functions support running a Docker container on every request so this is another alternative.
+ECS is a service I have used before using Terraform, and given that I have administrator access, I should not have any problems. HelloHippo uses Fargate, but I will create my own EC2 machines for this exercise.
 
 In any of these services, any update to the application code will generate a new version of the Docker image. This way, we will cover the requirement: `changes to HTML should cause redeployment.`.
+
+Lambda functions support running a Docker container on every request. However, it is incompatible with long-running processes like the one I created for this assignment. For similar reasons, SAM won't be used in this case either.
 
 I decided not to use EKS because Kubernetes is a black box. I know and have managed it, but it may be too much for this simple scenario.
 
 I decided not to use S3 or Lambda Functions, given that I want to work around a simple Golang server application that can be containerized, and none of those two services are compatible with Docker.
 
-I decided not to use Amplify, or SAM because I have not used those. I have experience with around 50% of AWS services, but these are simply some I have not used yet. I know I could learn about them quickly, but I want to speed up the process, and the scope I already chose is OK.
+I decided not to use Amplify because it is tied to Typescript applications and incompatible with containers.
 
-I thought implementing Elastic Beanstalk using Terraform to be a smooth process, but it wasn't. Documentation about how to use Elastic Beanstalk using Containers and Terraform had many complexities. Most resources recommended using the Elastic Beanstalk specific CLI tool `eb`.
+Implementing Elastic Beanstalk using Terraform wasn't smooth. Documentation about how to use Elastic Beanstalk using Containers and Terraform had many complexities. Most resources recommended using the Elastic Beanstalk-specific CLI tool `eb`.
 
 ### About Terraform
 I stopped using Terraform some months ago and moved to [Opentofu](https://github.com/opentofu/opentofu) given:
@@ -188,9 +187,21 @@ $ ./build-image.sh hellohippo 0.0.1 golang `git rev-parse HEAD`
 
 You will see that the ECR repository was marked as immutable given that once a docker image is pushed and tagged we should not be able to update it.
 
-### Deploying using Elastic Beanstalk
+### Deploying using App Runner
+The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources needed to deploy a container. It automatically assigns a url to it. There are further configurations that can be applied to it including:
+- using a custom domain
+- configuring tracing and observability
+- setting up secrets pulled from Parameter store or Secrets Manager
+- configuring autoscaling
+- binding instance roles for the process to have access to AWS services
+
+Currently the available url from App Runner is shown as an output after executing Terraform.
+
+### Deploying using LightSail
+
 
 ### Deploying using ECS
+
 
 ### Destroy the infrastructure
 1. Initialize Terraform (or Tofu):
