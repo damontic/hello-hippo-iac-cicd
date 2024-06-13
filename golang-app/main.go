@@ -33,7 +33,9 @@ func printVersion() {
 }
 
 func main() {
-	printVersionFlag := flag.Bool("printVersionFlag", false, "Specifies if the tool needs to print the version and exit.")
+	printVersionFlag := flag.Bool("version", false, "Specifies if the tool needs to print the version and exit.")
+	flag.Parse()
+
 	if *printVersionFlag {
 		printVersion()
 		os.Exit(0)

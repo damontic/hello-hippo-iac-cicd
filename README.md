@@ -152,8 +152,37 @@ This means I am limited in the number of accounts I can create, and I won't be a
 - deploy the same code into two different AWS accounts (think dev and prod). You should also be able to specify different parameters between accounts, such as the domain name or amount of compute needed.
 ```
 
+### Creating the infrastructure
+0. Export the needed environment variables before running Terraform (or Tofu):
+```bash
+$ export AWS_ACCESS_KEY_ID=**************
+$ export AWS_SECRET_ACCESS_KEY=**************
+$ export AWS_REGION=us-east-1
+```
+1. Initialize Terraform (or Tofu):
+```bash
+$ tofu init
+```
+2. Make a plan using Terraform (or Tofu):
+```bash
+$ tofu plan -out plan
+```
+3. Apply the plan using Terraform (or Tofu):
+```bash
+$ tofu apply plan
+```
+
 ### Creating the ECR repository and publishing the Docker image
+1. After generating all the infrastructure, we will have access to an ECR repository called: `golang`.
+2. Run the [build-image.sh](util_scripts/build-image.sh). This will use a locally installed Docker and configured AWS credentials to build and publish the Docker image we will work with.
 
 ### Deploying using Elastic Beanstalk
 
 ### Deploying using ECS
+
+### Destroy the infrastructure
+1. Initialize Terraform (or Tofu):
+```bash
+$ tofu destroy
+```
+2. Do not forget to delete both the S3 bucket and the DynamoDB database created to manage Terraform's state.
