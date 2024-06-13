@@ -40,21 +40,18 @@ Other alternatives I found after some investigation were:
 - SAM
 
 All of these ways to deploy applications are fascinating. To select two of them, I focused on their needs. We want: `changes to HTML should cause redeployment`. I decided to create a simple application in Golang that contains both a front end and a back end. I want to reuse the same application in both selected solutions, and this meant that the best choices are:
-- ECS
 - App runner
 - Lightsail
 
-I chose these three mainly because I want to use Docker and provide a simple service that serves static content and an API. Although I have never used App Runner or Lightsail, I will try to set up one.
+I chose these two mainly because I want to use Docker and provide a simple service that serves static content and an API. Although I have never used App Runner or Lightsail, I will try to set them up.
 
-ECS is a service I have used before using Terraform, and given that I have administrator access, I should not have any problems. HelloHippo uses Fargate, but I will create my own EC2 machines for this exercise.
-
-In any of these services, any update to the application code will generate a new version of the Docker image. This way, we will cover the requirement: `changes to HTML should cause redeployment.`.
+ECS is a service I have used before using Terraform. Given that this is an opportunity for me to learn new AWS services, I decided not to go with ECS this time and I decided to focus on App Runner and LightSail. If I have issues with any of those two, I will implement a solution using ECS.
 
 Lambda functions support running a Docker container on every request. However, it is incompatible with long-running processes like the one I created for this assignment. For similar reasons, SAM won't be used in this case either.
 
 I decided not to use EKS because Kubernetes is a black box. I know and have managed it, but it may be too much for this simple scenario.
 
-I decided not to use S3 or Lambda Functions, given that I want to work around a simple Golang server application that can be containerized, and none of those two services are compatible with Docker.
+I decided not to use S3 given that I want to work around a simple Golang server application that can be containerized, and S3 will only allow me to use static sites with static resources.
 
 I decided not to use Amplify because it is tied to Typescript applications and incompatible with containers.
 
@@ -188,7 +185,7 @@ $ ./build-image.sh hellohippo 0.0.1 golang `git rev-parse HEAD`
 You will see that the ECR repository was marked as immutable given that once a docker image is pushed and tagged we should not be able to update it.
 
 ### Deploying using App Runner
-The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources needed to deploy a container. It automatically assigns a url to it. There are further configurations that can be applied to it including:
+The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources needed to deploy a container in AWS App Runner. It automatically assigns a url to it. There are further configurations that can be applied to it including:
 - using a custom domain
 - configuring tracing and observability
 - setting up secrets pulled from Parameter store or Secrets Manager
@@ -198,10 +195,11 @@ The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources n
 Currently the available url from App Runner is shown as an output after executing Terraform.
 
 ### Deploying using LightSail
+The file [lightsail.tf](iac/lightsail.tf) defines the minumum set of resources needed to deploy a container in AWS Lightsail. It automatically assigns a url to it. There are further configurations that can be applied to it including:
+- using a custom domain
+- configuring the capacity (power and scale)
 
-
-### Deploying using ECS
-
+Currently the available url from LightSail is shown as an output after executing Terraform.
 
 ### Destroy the infrastructure
 1. Initialize Terraform (or Tofu):
@@ -209,3 +207,19 @@ Currently the available url from App Runner is shown as an output after executin
 $ tofu destroy
 ```
 2. Do not forget to delete both the S3 bucket and the DynamoDB database created to manage Terraform's state.
+
+## Conclusion
+I am very happy to have used this opportunity to learn about AWS LightSail and APP Runner.
+
+To further learn about which AWS services can be used for this I recommend reading [Choosing an AWS container service](https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html).
+
+![image](https://docs.aws.amazon.com/images/decision-guides/latest/containers-on-aws-how-to-choose/images/container-options-on-aws.png)
+
+I personally think that a solution with ECS with managed EC2 provides multiple benefits like:
+- increased control on the resources
+- best visibility
+
+But I really liked using both LighSail and App Runner.
+
+Lightsail offers basic support for containers.
+App Runner offers a full range of configuration that completely facilitate the way containers are managed and provides security solutions, custom DNS, observability, tracing and more. I will personally try to use this service more in the future.

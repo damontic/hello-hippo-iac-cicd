@@ -41,7 +41,7 @@ resource "aws_iam_role" "app_runner_ecr_access" {
 
 data "aws_ecr_image" "golang-app" {
   repository_name = aws_ecr_repository.hellohippo-golang.name
-  image_tag       = "0.0.1"
+  image_tag       = "0.0.2"
 }
 
 resource "aws_apprunner_service" "golang-app" {
