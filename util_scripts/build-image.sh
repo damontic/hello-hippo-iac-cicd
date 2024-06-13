@@ -70,7 +70,7 @@ REPOSITORY_URI=$(aws --profile "$AWS_PROFILE" \
     --output text \
     ecr describe-repositories)
     
-IMAGE="${REPOSITORY_URI}/golang-app:$VERSION"
+IMAGE="${REPOSITORY_URI}:$VERSION"
 
 UTC_DATE="$(date -u +%Y-%m-%dT%H:%M:%S%Z)"
 

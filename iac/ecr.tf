@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "hellohippo-golang" {
-  name                 = "golang"
+  name                 = "hellohippo/golang-app"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
