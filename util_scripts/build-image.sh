@@ -72,9 +72,12 @@ REPOSITORY_URI=$(aws --profile "$AWS_PROFILE" \
     
 IMAGE="${REPOSITORY_URI}/golang-app:$VERSION"
 
+CURRENT_DATE="$(date)"
+
 docker buildx build \
     --build-arg VERSION="$VERSION" \
     --build-arg COMMIT="$COMMIT" \
+    --build-arg DATE="$CURRENT_DATE" \
     --build-context src="/tmp/hellohippo/golang-app/golang-app" \
     -t  "$IMAGE" \
     /tmp/hellohippo/golang-app/golang-app/docker
