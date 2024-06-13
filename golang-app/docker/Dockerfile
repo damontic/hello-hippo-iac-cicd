@@ -19,7 +19,7 @@ COPY --from=src . .
 # Build the Go application with the build arguments
 RUN CGO_ENABLED=0 GOOS=linux \
     go build -ldflags \
-    "-X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Date=\"${DATE}\"" \
+    "-X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Date=${DATE}" \
     -o golang-app
 
 # Final stage
