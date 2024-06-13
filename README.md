@@ -185,7 +185,9 @@ $ ./build-image.sh hellohippo 0.0.1 golang `git rev-parse HEAD`
 You will see that the ECR repository was marked as immutable given that once a docker image is pushed and tagged we should not be able to update it.
 
 ### Deploying using App Runner
-The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources needed to deploy a container in AWS App Runner. It automatically assigns a url to it. There are further configurations that can be applied to it including:
+The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources needed to deploy a container in AWS App Runner. It automatically assigns a url to it.
+
+There are further configurations that can be applied to it including:
 - using a custom domain
 - configuring tracing and observability
 - setting up secrets pulled from Parameter store or Secrets Manager
@@ -195,7 +197,9 @@ The file [apprunner.tf](iac/apprunner.tf) defines the minimum set of resources n
 Currently the available url from App Runner is shown as an output after executing Terraform.
 
 ### Deploying using LightSail
-The file [lightsail.tf](iac/lightsail.tf) defines the minumum set of resources needed to deploy a container in AWS Lightsail. It automatically assigns a url to it. There are further configurations that can be applied to it including:
+The file [lightsail.tf](iac/lightsail.tf) defines the minumum set of resources needed to deploy a container in AWS Lightsail. It automatically assigns a url to it.
+
+There are further configurations that can be applied to it including:
 - using a custom domain
 - configuring the capacity (power and scale)
 
@@ -207,6 +211,7 @@ Currently the available url from LightSail is shown as an output after executing
 $ tofu destroy
 ```
 2. Do not forget to delete both the S3 bucket and the DynamoDB database created to manage Terraform's state.
+3. Also manually delete the ECR repository and all its images.
 
 ## Conclusion
 I am very happy to have used this opportunity to learn about AWS LightSail and APP Runner.
